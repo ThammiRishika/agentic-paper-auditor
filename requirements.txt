@@ -1,0 +1,13 @@
+crawl4ai>=0.4
+requests
+langchain>=0.2
+langchain-google-genai>=1.0
+langchain-openai>=0.1
+langchain-community>=0.2
+duckduckgo-search
+instructor[google-generativeai]
+groq
+openai>=1.0
+pydantic>=2.0
+streamlit>=1.35
+python-dotenv
