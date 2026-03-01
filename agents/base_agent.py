@@ -38,9 +38,13 @@ def get_client():
     else:
         provider_prefix = "google" if PROVIDER == "gemini" else PROVIDER
         api_key = os.environ["GEMINI_API_KEY"] if PROVIDER == "gemini" else GROQ_API_KEY
+        # Groq requires Mode.JSON — its API rejects the default TOOLS mode format
+        mode = instructor.Mode.JSON if PROVIDER == "groq" else None
+        kwargs = {"mode": mode} if mode else {}
         _client = instructor.from_provider(
             f"{provider_prefix}/{MODEL}",
             api_key=api_key,
+            **kwargs,
         )
         print(f"[LLM] Provider: {PROVIDER.title()} | Model: {MODEL}")
 
