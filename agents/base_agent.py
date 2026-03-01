@@ -6,11 +6,10 @@ from typing import Type, TypeVar
 
 T = TypeVar("T", bound=BaseModel)
 
-# ── Provider configuration ────────────────────────────────────────────────────
+# Provider configuration 
 # Set PROVIDER in .env to: "gemini" | "groq" | "local"
 PROVIDER = os.environ.get("PROVIDER", "gemini").lower()
 
-# Model defaults per provider (override with MODEL env var)
 _DEFAULTS = {
     "gemini": "gemini-2.0-flash-lite",
     "groq":   "llama-3.3-70b-versatile",
@@ -22,37 +21,28 @@ MODEL = os.environ.get("MODEL", _DEFAULTS.get(PROVIDER, "gemini-2.0-flash-lite")
 GROQ_API_KEY   = os.environ.get("GROQ_API_KEY", "")
 LM_STUDIO_URL  = os.environ.get("LM_STUDIO_URL", "http://localhost:1234/v1")
 
-# ── Instructor client (module-level singleton) ────────────────────────────────
 _client = None
-
 
 def get_client():
     global _client
     if _client is not None:
         return _client
 
-    if PROVIDER == "groq":
-        from groq import Groq
-        _client = instructor.from_groq(
-            Groq(api_key=GROQ_API_KEY),
-            mode=instructor.Mode.JSON,
-        )
-        print(f"[LLM] Provider: Groq | Model: {MODEL}")
-
-    elif PROVIDER == "local":
+    if PROVIDER == "local":
         from openai import OpenAI as _OpenAI
         _client = instructor.from_openai(
             _OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio"),
             mode=instructor.Mode.JSON_SCHEMA,
         )
         print(f"[LLM] Provider: LM Studio ({LM_STUDIO_URL}) | Model: {MODEL}")
-
-    else:  # gemini (default)
+    else:
+        provider_prefix = "google" if PROVIDER == "gemini" else PROVIDER
+        api_key = os.environ["GEMINI_API_KEY"] if PROVIDER == "gemini" else GROQ_API_KEY
         _client = instructor.from_provider(
-            f"google/{MODEL}",
-            api_key=os.environ["GEMINI_API_KEY"],
+            f"{provider_prefix}/{MODEL}",
+            api_key=api_key,
         )
-        print(f"[LLM] Provider: Gemini | Model: {MODEL}")
+        print(f"[LLM] Provider: {PROVIDER.title()} | Model: {MODEL}")
 
     return _client
 
@@ -113,7 +103,7 @@ def extract_structured(prompt: str, model_class: Type[T], max_retries: int = 3) 
     raise last_exc
 
 
-# ── Token / chunking helpers ──────────────────────────────────────────────────
+# Token / chunking helpers
 
 def chunk_text(text: str, max_tokens: int = 12_000) -> list[str]:
     max_chars = max_tokens * 4

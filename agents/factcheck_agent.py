@@ -8,7 +8,6 @@ def run_factcheck(sections: dict) -> FactCheckResult:
       Pass 1: Extract top-20 most important factual claims (ClaimsOnly model).
       Pass 2+: Verify claims in batches of 5 (FactCheckResult model per batch).
     """
-    # Combine Results + Abstract for richer claim surface (capped at 6k chars)
     results_text = (
         sections.get("Results", "")
         or sections.get("Experiments", "")
@@ -20,7 +19,7 @@ def run_factcheck(sections: dict) -> FactCheckResult:
     combined = (abstract_text + "\n\n" + results_text)[:24_000]
     combined = summarize_if_too_long(combined, max_tokens=6_000)
 
-    # ── Pass 1: Extract claims ────────────────────────────────────────────────
+    # Pass 1: Extract claims 
     claims = _extract_claims(combined)
 
     # Retry with simpler prompt if model returned empty list
@@ -39,7 +38,7 @@ def run_factcheck(sections: dict) -> FactCheckResult:
 
     claims = claims[:20]  # hard cap
 
-    # ── Pass 2+: Verify in batches of 5 ──────────────────────────────────────
+    # Pass 2+: Verify in batches of 5 
     verified_claims: list[Claim] = []
     for i in range(0, len(claims), 5):
         batch = claims[i : i + 5]

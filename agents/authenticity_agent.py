@@ -11,10 +11,6 @@ def run_authenticity(sections: dict, paper: dict | None = None) -> AuthenticityR
 
     Each pass explicitly receives prior findings in the prompt to maintain
     analytical continuity without relying on LLM memory (stateless calls).
-
-    The prompt is calibrated to be conservative: do NOT assign "High" risk or
-    very high fabrication probabilities unless there is strong evidence of
-    fabrication (impossible numbers, blatant contradictions, etc.).
     """
     abstract = sections.get("Abstract", "")[:4_000]
     introduction = sections.get("Introduction", "")[:4_000]

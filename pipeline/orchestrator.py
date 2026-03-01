@@ -32,17 +32,17 @@ def run_pipeline(
         if progress_cb:
             progress_cb(step, msg)
 
-    # ── 1. Scrape (async — run in its own event loop then exit) ───────────────
+    # 1. Scrape (async — run in its own event loop then exit) 
     notify("scraping", "Fetching paper from arXiv…")
     paper = asyncio.run(scrape(url))  # event loop opened and CLOSED here
 
-    # ── 2. Decompose (pure Python, no LLM) ───────────────────────────────────
+    # 2. Decompose (pure Python, no LLM) 
     notify("decomposing", "Splitting paper into sections…")
     sections = split_sections(paper["body"])
     if "Abstract" not in sections and paper.get("abstract"):
         sections["Abstract"] = paper["abstract"]
 
-    # ── 3. Agents (all synchronous, no active event loop) ────────────────────
+    # 3. Agents (all synchronous, no active event loop) 
     notify("consistency", "Running Consistency Agent…")
     consistency = run_consistency(sections)
     time.sleep(12)

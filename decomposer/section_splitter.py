@@ -1,6 +1,6 @@
 import re
 
-# ── Heading detection (regex only, zero cost) ─────────────────────────────────
+# Heading detection (regex only, zero cost) 
 
 _ANY_HEADING_RE = re.compile(r"(?im)^#{1,4}\s+(.+)$")
 
@@ -29,7 +29,7 @@ _JUNK_WORDS = {
     "notation", "proofs", "proof",
 }
 
-# ── Canonical word-scan map ───────────────────────────────────────────────────
+# Canonical word-scan map 
 # Scans ALL words in a section name — handles arbitrary titles like
 # "Deep Residual Learning" (word "learning" → Methodology),
 # "ImageNet Classification" (word "classification" → Experiments).
@@ -113,7 +113,7 @@ def _to_canonical(name: str) -> str:
     for word in words:
         if word in _WORD_TO_CANONICAL:
             return _WORD_TO_CANONICAL[word]
-    return name   # keep original if no mapping found
+    return name
 
 
 def _find_all_headings(text: str) -> list:
